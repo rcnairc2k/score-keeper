@@ -5,6 +5,7 @@ import { InningHistory } from '../components/InningHistory';
 import { RackHistory } from '../components/RackHistory';
 
 import { Shield, Target, Trophy, ArrowLeft, RotateCcw, RotateCcw as UndoIcon } from 'lucide-react';
+import { BilliardBall } from '../components/BilliardBall';
 
 
 export const MatchScorer: React.FC = () => {
@@ -193,17 +194,7 @@ export const MatchScorer: React.FC = () => {
         setCurrentShooter(winnerId);
     };
 
-    const getBallColor = (num: number) => {
-        if (num === 1 || num === 9) return 'bg-yellow-400 text-black border-yellow-400';
-        if (num === 2 || num === 10) return 'bg-blue-600 text-white border-blue-600';
-        if (num === 3) return 'bg-red-600 text-white border-red-600';
-        if (num === 4) return 'bg-purple-600 text-white border-purple-600';
-        if (num === 5) return 'bg-orange-600 text-white border-orange-600';
-        if (num === 6) return 'bg-green-600 text-white border-green-600';
-        if (num === 7) return 'bg-red-800 text-white border-red-800';
-        if (num === 8) return 'bg-black text-white border-gray-700';
-        return 'bg-gray-700 text-white';
-    };
+
 
     if (isMatchOver) {
         return (
@@ -350,13 +341,22 @@ export const MatchScorer: React.FC = () => {
                                             key={ball}
                                             onClick={() => handleBallClick(ball)}
                                             className={`
-                                                w-12 h-12 rounded-full font-bold shadow-sm flex items-center justify-center border-2 transition-all
-                                                ${isOnTable ? getBallColor(ball) : ''}
-                                                ${isPotted ? 'bg-green-500/20 border-green-500 text-green-500' : ''}
-                                                ${isDead ? 'bg-gray-800 border-gray-600 text-gray-600 line-through opacity-50' : ''}
+                                                relative rounded-full transition-all transform active:scale-95
+                                                ${isOnTable ? 'opacity-100 hover:scale-105' : ''}
+                                                ${isPotted ? 'opacity-50 ring-4 ring-green-500 scale-90 grayscale-[0.5]' : ''}
+                                                ${isDead ? 'opacity-20 grayscale scale-75' : ''}
                                             `}
                                         >
-                                            {ball}
+                                            <BilliardBall number={ball} size="w-16 h-16" />
+
+                                            {/* Status Overlays */}
+                                            {isPotted && (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="bg-green-600 text-white rounded-full p-1 shadow-md">
+                                                        <Target size={20} />
+                                                    </div>
+                                                </div>
+                                            )}
                                         </button>
                                     )
                                 })}
