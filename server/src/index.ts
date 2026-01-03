@@ -9,6 +9,17 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.get('/api/health', async (req, res) => {
+    try {
+        // Simple query to verify DB connection
+        await prisma.player.count();
+        res.json({ status: 'ok', database: 'connected' });
+    } catch (error) {
+        console.error("Health check failed:", error);
+        res.status(500).json({ status: 'error', database: 'disconnected', error: String(error) });
+    }
+});
+
 // --- Players ---
 app.get('/api/players', async (req, res) => {
     const players = await prisma.player.findMany();

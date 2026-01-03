@@ -45,13 +45,17 @@ export const useStore = create<AppState>((set) => ({
         // Optimistic
         set((state) => ({ players: [...state.players, player] }));
         try {
-            await fetch(`${API_URL}/players`, {
+            const res = await fetch(`${API_URL}/players`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(player)
             });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Backend Status ${res.status}: ${text}`);
+            }
         } catch (error) {
-            console.error("Failed to add player:", error);
+            console.error("CRITICAL: Failed to add player to backend. Data will be lost on refresh.", error);
         }
     },
 
