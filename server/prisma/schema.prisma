@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id             String   @id @default(uuid())
+  name           String
+  skillLevel8Ball Int?
+  skillLevel9Ball Int?
+  avatarUrl      String?
+  matchAsPlayer1 Match[]  @relation("Player1Matches")
+  matchAsPlayer2 Match[]  @relation("Player2Matches")
+}
+
+model Match {
+  id        String   @id @default(uuid())
+  type      String   // '8-ball' | '9-ball' | '10-ball'
+  status    String   // 'scheduled' | 'in_progress' | 'completed'
+  startTime BigInt
+  endTime   BigInt?
+  
+  player1Id String
+  player1   Player @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2Id String
+  player2   Player @relation("Player2Matches", fields: [player2Id], references: [id])
+  
+  scores    Json     // Store the Record<string, MatchScore> as JSON
+  innings   Json     // Store Inning[] as JSON
+  winnerId  String?
+  
+  tournamentId String?
+  tournament   Tournament? @relation(fields: [tournamentId], references: [id])
+}
+
+model Tournament {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // 'round_robin' | 'modified_double_elimination'
+  status      String   // 'draft' | 'active' | 'completed'
+  dateCreated BigInt
+  
+  // We can store the list of players involved as JSON or rely on Matches relation?
+  // Frontend sends full object. Storing player IDs as JSON is easiest for "Tournament Players" list 
+  // which might include seeds etc.
+  players     Json     // List of TournamentPlayer
+  matches     Match[]
+}
