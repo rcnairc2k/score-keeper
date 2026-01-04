@@ -335,16 +335,19 @@ export const MatchScorer: React.FC = () => {
                                     const isOnTable = ballsOnTable.includes(ball);
                                     const isPotted = pottedBalls.includes(ball);
                                     const isDead = deadBalls.includes(ball);
+                                    const isGone = !isOnTable && !isPotted && !isDead;
 
                                     return (
                                         <button
                                             key={ball}
+                                            disabled={isGone}
                                             onClick={() => handleBallClick(ball)}
                                             className={`
                                                 relative rounded-full transition-all transform active:scale-95
-                                                ${isOnTable ? 'opacity-100 hover:scale-105' : ''}
+                                                ${isOnTable ? 'opacity-100 hover:scale-105 shadow-xl' : ''}
                                                 ${isPotted ? 'opacity-50 ring-4 ring-green-500 scale-90 grayscale-[0.5]' : ''}
-                                                ${isDead ? 'opacity-20 grayscale scale-75' : ''}
+                                                ${isDead ? 'opacity-30 grayscale scale-75 line-through' : ''}
+                                                ${isGone ? 'opacity-10 grayscale scale-75 blur-[1px] cursor-default' : ''}
                                             `}
                                         >
                                             <BilliardBall number={ball} size="w-16 h-16" />
