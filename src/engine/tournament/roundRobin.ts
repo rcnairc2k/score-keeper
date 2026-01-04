@@ -32,8 +32,8 @@ export const generateRoundRobinMatches = (
                     type: gameType,
                     startTime: Date.now(), // Scheduled time could be distinct
                     scores: {
-                        [p1.id]: { playerId: p1.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0 },
-                        [p2.id]: { playerId: p2.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0 }
+                        [p1.id]: { playerId: p1.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0, timeouts: 0 },
+                        [p2.id]: { playerId: p2.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0, timeouts: 0 }
                     },
                     innings: [],
                     status: 'scheduled'
