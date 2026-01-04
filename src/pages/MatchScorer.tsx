@@ -75,7 +75,14 @@ export const MatchScorer: React.FC = () => {
 
     // APA-style Inning Count: Number of turns completed by Player 2 (Bottom Player)
     // We assume Player 2 is always the "Bottom" player in the schema for now.
-    const apaInnings = match.innings.filter(i => i.playerId === p2.id).length;
+    const apaInnings = match.innings.filter(i => {
+        if (i.playerId !== p2.id) return false;
+        // Exclude turns where the player won (potted money ball)
+        // Note: For 8-ball, wins are not stored in 'innings', so this filter mainly affects 9/10 ball
+        const mb = match.type === '10-ball' ? 10 : 9;
+        const wonGame = i.ballsPottedList?.includes(mb);
+        return !wonGame;
+    }).length;
 
     const resetRack = () => {
         const count = match.type === '10-ball' ? 10 : 9;
