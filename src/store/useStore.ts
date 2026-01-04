@@ -16,7 +16,8 @@ interface AppState {
     updateTournament: (id: string, updates: Partial<Tournament>) => Promise<void>;
 }
 
-const API_URL = import.meta.env.VITE_API_URL
+// Use env var or fallback to the known production backend
+const API_URL = import.meta.env.VITE_API_URL || 'https://scorekeepersvc.azurewebsites.net/api';
 
 export const useStore = create<AppState>((set) => ({
     players: [],
@@ -45,17 +46,13 @@ export const useStore = create<AppState>((set) => ({
         // Optimistic
         set((state) => ({ players: [...state.players, player] }));
         try {
-            const res = await fetch(`${API_URL}/players`, {
+            await fetch(`${API_URL}/players`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(player)
             });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`Backend Status ${res.status}: ${text}`);
-            }
         } catch (error) {
-            console.error("CRITICAL: Failed to add player to backend. Data will be lost on refresh.", error);
+            console.error("Failed to add player:", error);
         }
     },
 
