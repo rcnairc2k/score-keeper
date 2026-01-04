@@ -30,6 +30,7 @@ export interface MatchScore {
     gamesWon: number; // 8 ball
     innings: number;
     defensiveShots: number;
+    timeouts: number;
 }
 
 export interface Match {

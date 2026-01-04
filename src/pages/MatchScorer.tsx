@@ -11,7 +11,7 @@ import { BilliardBall } from '../components/BilliardBall';
 export const MatchScorer: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { match, raceTo, addInning, recordGameWin, undoLastInning, resetMatch } = useMatchScorer(id!);
+    const { match, raceTo, addInning, recordGameWin, undoLastInning, resetMatch, addTimeout } = useMatchScorer(id!);
 
     // Local state for current inning
     const [currentShooter, setCurrentShooter] = useState<string>(''); // Player ID
@@ -70,7 +70,12 @@ export const MatchScorer: React.FC = () => {
     // Derived State: Match Over?
     const isMatchOver = (s1.totalPoints >= raceTo[p1.id] && raceTo[p1.id] > 0) ||
         (s2.totalPoints >= raceTo[p2.id] && raceTo[p2.id] > 0) ||
+        (s2.totalPoints >= raceTo[p2.id] && raceTo[p2.id] > 0) ||
         (is8Ball && (s1.gamesWon >= raceTo[p1.id] || s2.gamesWon >= raceTo[p2.id]));
+
+    // APA-style Inning Count: Number of turns completed by Player 2 (Bottom Player)
+    // We assume Player 2 is always the "Bottom" player in the schema for now.
+    const apaInnings = match.innings.filter(i => i.playerId === p2.id).length;
 
     const resetRack = () => {
         const count = match.type === '10-ball' ? 10 : 9;
@@ -272,6 +277,7 @@ export const MatchScorer: React.FC = () => {
                                 <span className="text-lg text-gray-500 font-normal"> / {raceTo[p1.id]}</span>
                             </div>
                         </div>
+
                         {is8Ball && (
                             <button
                                 onClick={() => handle8BallWin(p1.id)}
@@ -280,6 +286,14 @@ export const MatchScorer: React.FC = () => {
                                 <Trophy size={14} /> Won Rack
                             </button>
                         )}
+                        <button
+                            onClick={() => addTimeout(p1.id)}
+                            className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg flex items-center gap-2 ml-2"
+                            title="Record Timeout"
+                        >
+                            <span className="text-xs font-bold uppercase">T/O</span>
+                            <span className="bg-gray-900 px-1.5 rounded text-xs">{s1.timeouts || 0}</span>
+                        </button>
                     </div>
                 </div>
 
@@ -297,6 +311,7 @@ export const MatchScorer: React.FC = () => {
                                 <span className="text-lg text-gray-500 font-normal"> / {raceTo[p2.id]}</span>
                             </div>
                         </div>
+
                         {is8Ball && (
                             <button
                                 onClick={() => handle8BallWin(p2.id)}
@@ -305,6 +320,14 @@ export const MatchScorer: React.FC = () => {
                                 <Trophy size={14} /> Won Rack
                             </button>
                         )}
+                        <button
+                            onClick={() => addTimeout(p2.id)}
+                            className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg flex items-center gap-2 ml-2"
+                            title="Record Timeout"
+                        >
+                            <span className="text-xs font-bold uppercase">T/O</span>
+                            <span className="bg-gray-900 px-1.5 rounded text-xs">{s2.timeouts || 0}</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -313,7 +336,7 @@ export const MatchScorer: React.FC = () => {
             <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700 shadow-xl">
                 <div className="text-center mb-6">
                     <span className="bg-gray-900 border border-gray-600 text-gray-300 px-4 py-1.5 rounded-full text-sm font-medium">
-                        Inning {match.innings.length + 1}
+                        Score Sheet Innings: {apaInnings}
                     </span>
                     <h2 className="text-2xl font-bold text-white mt-4">
                         {currentShooter === p1.id ? p1.name : p2.name}'s Turn

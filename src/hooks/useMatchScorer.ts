@@ -123,14 +123,26 @@ export const useMatchScorer = (matchId: string) => {
             defensiveShots: 0,
             totalPoints: 0,
             gamesWon: 0,
-            matchPoints: 0
+            matchPoints: 0,
+            timeouts: 0
         };
 
         updateMatch(matchId, {
             innings: [],
             scores: {
-                [match.player1.id]: { ...emptyScore, playerId: match.player1.id },
-                [match.player2.id]: { ...emptyScore, playerId: match.player2.id }
+                [match.player1.id]: { ...emptyScore, playerId: match.player1.id, timeouts: 0 },
+                [match.player2.id]: { ...emptyScore, playerId: match.player2.id, timeouts: 0 }
+            }
+        });
+    }, [match, matchId, updateMatch]);
+
+    const addTimeout = useCallback((playerId: string) => {
+        if (!match) return;
+        const currentScore = match.scores[playerId];
+        updateMatch(matchId, {
+            scores: {
+                ...match.scores,
+                [playerId]: { ...currentScore, timeouts: (currentScore.timeouts || 0) + 1 }
             }
         });
     }, [match, matchId, updateMatch]);
@@ -142,6 +154,7 @@ export const useMatchScorer = (matchId: string) => {
         updateScore,
         recordGameWin,
         undoLastInning,
+        addTimeout,
         resetMatch
     };
 };
