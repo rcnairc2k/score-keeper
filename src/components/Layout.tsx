@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Trophy, Users, PlayCircle, Home } from 'lucide-react';
+import { Trophy, Users, PlayCircle, Home, History } from 'lucide-react';
 
 import { twMerge } from 'tailwind-merge';
 
@@ -16,7 +16,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         { label: 'Play', path: '/play', icon: PlayCircle },
         { label: 'Players', path: '/players', icon: Users },
         { label: 'Tournaments', path: '/tournaments', icon: Trophy },
-        // { label: 'Settings', path: '/settings', icon: Settings },
+        { label: 'History', path: '/history', icon: History },
     ];
 
     return (
