@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ArrowLeft, CheckCircle, Plus, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Plus, X, LayoutGrid, List } from 'lucide-react';
+import { BracketView } from '../components/BracketView';
 
 export const TournamentDetails: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -9,6 +10,7 @@ export const TournamentDetails: React.FC = () => {
     const tournament = tournaments.find(t => t.id === id);
 
     const [isAddingMatch, setIsAddingMatch] = useState(false);
+    const [viewMode, setViewMode] = useState<'list' | 'bracket'>('bracket');
     const [p1Id, setP1Id] = useState('');
     const [p2Id, setP2Id] = useState('');
 
@@ -93,6 +95,24 @@ export const TournamentDetails: React.FC = () => {
                 </button>
             </div>
 
+            {/* View Toggle (Only for brackets) */}
+            {(tournament.type === 'single_elimination' || tournament.type === 'double_elimination') && (
+                <div className="flex gap-2 mb-6">
+                    <button
+                        onClick={() => setViewMode('bracket')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${viewMode === 'bracket' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}
+                    >
+                        <LayoutGrid size={18} /> Bracket
+                    </button>
+                    <button
+                        onClick={() => setViewMode('list')}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${viewMode === 'list' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}
+                    >
+                        <List size={18} /> Match List
+                    </button>
+                </div>
+            )}
+
             {/* Add Match Modal */}
             {isAddingMatch && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
@@ -170,36 +190,42 @@ export const TournamentDetails: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Matches */}
                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-white">Matches</h2>
-                    <div className="space-y-2">
-                        {tournament.matches.map((m: any, idx: number) => (
-                            <Link
-                                key={m.id}
-                                to={`/match/${m.id}`}
-                                className={`block bg-gray-800 p-4 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-colors ${m.status === 'completed' ? 'opacity-75 hover:opacity-100' : ''}`}
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div className="text-xs text-gray-500 mb-1">Match {idx + 1}</div>
-                                    {m.status === 'completed' && <CheckCircle size={14} className="text-green-500" />}
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div className="flex-1">
-                                        <div className={`font-medium ${m.winnerId === m.player1.id ? 'text-green-400' : 'text-white'}`}>
-                                            {m.player1.name}
+                    <h2 className="text-xl font-bold text-white">
+                        {tournament.type === 'round_robin' ? 'Matches' : (viewMode === 'bracket' ? 'Bracket' : 'Match List')}
+                    </h2>
+
+                    {tournament.type !== 'round_robin' && viewMode === 'bracket' ? (
+                        <BracketView matches={tournament.matches} />
+                    ) : (
+                        <div className="space-y-2">
+                            {tournament.matches.map((m: any, idx: number) => (
+                                <Link
+                                    key={m.id}
+                                    to={`/match/${m.id}`}
+                                    className={`block bg-gray-800 p-4 rounded-xl border border-gray-700 hover:border-blue-500/50 transition-colors ${m.status === 'completed' ? 'opacity-75 hover:opacity-100' : ''}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div className="text-xs text-gray-500 mb-1">Match {idx + 1}</div>
+                                        {m.status === 'completed' && <CheckCircle size={14} className="text-green-500" />}
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex-1">
+                                            <div className={`font-medium ${m.winnerId === m.player1.id ? 'text-green-400' : 'text-white'}`}>
+                                                {m.player1.name}
+                                            </div>
+                                        </div>
+                                        <div className="px-3 text-gray-500 text-xs">VS</div>
+                                        <div className="flex-1 text-right">
+                                            <div className={`font-medium ${m.winnerId === m.player2.id ? 'text-green-400' : 'text-white'}`}>
+                                                {m.player2.name}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="px-3 text-gray-500 text-xs">VS</div>
-                                    <div className="flex-1 text-right">
-                                        <div className={`font-medium ${m.winnerId === m.player2.id ? 'text-green-400' : 'text-white'}`}>
-                                            {m.player2.name}
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

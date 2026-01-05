@@ -79,11 +79,50 @@ export const useStore = create<AppState>((set) => ({
     },
 
     updateMatch: async (id, updates) => {
-        set((state) => ({
-            matches: state.matches.map((m) =>
+        set((state) => {
+            // 1. Update global matches list
+            const newMatches = state.matches.map((m) =>
                 m.id === id ? { ...m, ...updates } : m
-            ),
-        }));
+            );
+
+            // 2. Update nested tournament matches
+            let newTournaments = state.tournaments.map((t) => ({
+                ...t,
+                matches: t.matches.map((m) =>
+                    m.id === id ? { ...m, ...updates } : m
+                )
+            }));
+
+            // 3. Progression logic (moving winners)
+            if (updates.status === 'completed' && updates.winnerId) {
+                newTournaments = newTournaments.map(t => {
+                    const finishedMatch = t.matches.find(m => m.id === id);
+                    if (!finishedMatch || !finishedMatch.nextMatchId) return t;
+
+                    const winner = finishedMatch.winnerId === finishedMatch.player1.id
+                        ? finishedMatch.player1
+                        : finishedMatch.player2;
+
+                    return {
+                        ...t,
+                        matches: t.matches.map(m => {
+                            if (m.id === finishedMatch.nextMatchId) {
+                                // Slot winner into available spot
+                                if (m.player1.id === 'tbd' || m.player1.id === 'bye') {
+                                    return { ...m, player1: winner, scores: { ...m.scores, [winner.id]: { playerId: winner.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0, timeouts: 0 } } };
+                                } else {
+                                    return { ...m, player2: winner, scores: { ...m.scores, [winner.id]: { playerId: winner.id, totalPoints: 0, gamesWon: 0, innings: 0, defensiveShots: 0, timeouts: 0 } } };
+                                }
+                            }
+                            return m;
+                        })
+                    };
+                });
+            }
+
+            return { matches: newMatches, tournaments: newTournaments };
+        });
+
         try {
             await fetch(`${API_URL}/matches/${id}`, {
                 method: 'PUT',

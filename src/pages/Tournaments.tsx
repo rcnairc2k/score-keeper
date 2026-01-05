@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import type { GameType, TournamentType, Match } from '../types';
 import { generateRoundRobinMatches } from '../engine/tournament/roundRobin';
+import { generateSingleEliminationMatches } from '../engine/tournament/singleElimination';
 import { generateDoubleEliminationMatches } from '../engine/tournament/doubleElimination';
 import { Plus, Trophy, Calendar, Users, ChevronRight } from 'lucide-react';
 
@@ -24,7 +25,9 @@ export const Tournaments: React.FC = () => {
         let matches: Match[] = [];
         if (type === 'round_robin') {
             matches = generateRoundRobinMatches(tournamentPlayers, gameType);
-        } else if (type === 'modified_double_elimination') {
+        } else if (type === 'single_elimination') {
+            matches = generateSingleEliminationMatches(tournamentPlayers, gameType);
+        } else if (type === 'double_elimination') {
             matches = generateDoubleEliminationMatches(tournamentPlayers, gameType);
         }
 
@@ -95,7 +98,8 @@ export const Tournaments: React.FC = () => {
                                     className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white outline-none"
                                 >
                                     <option value="round_robin">Round Robin</option>
-                                    <option value="modified_double_elimination">Double Elimination</option>
+                                    <option value="single_elimination">Single Elimination</option>
+                                    <option value="double_elimination">Double Elimination</option>
                                 </select>
                             </div>
                             <div>

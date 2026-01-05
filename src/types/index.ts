@@ -44,13 +44,18 @@ export interface Match {
     innings: Inning[];
     winnerId?: string;
     status: 'scheduled' | 'in_progress' | 'completed';
+    // Bracket Meta
+    round?: number;
+    bracket?: 'winners' | 'losers';
+    nextMatchId?: string; // Where the winner goes
+    nextLoserMatchId?: string; // Where the loser goes (Double Elim)
 }
 
 export interface TournamentPlayer extends Player {
     seed?: number;
 }
 
-export type TournamentType = 'round_robin' | 'modified_double_elimination';
+export type TournamentType = 'round_robin' | 'single_elimination' | 'double_elimination';
 
 export interface Tournament {
     id: string;
