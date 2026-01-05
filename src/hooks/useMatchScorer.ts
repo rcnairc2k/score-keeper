@@ -4,8 +4,19 @@ import type { MatchScore, Inning } from '../types';
 import { getGamesNeeded8Ball, getPointsNeeded9Ball } from '../engine/scoring/rules';
 
 export const useMatchScorer = (matchId: string) => {
-    const { matches, updateMatch } = useStore();
-    const match = matches.find(m => m.id === matchId);
+    const { matches, tournaments, updateMatch } = useStore();
+
+    // Find match in global list OR inside any tournament
+    let match = matches.find(m => m.id === matchId);
+    if (!match) {
+        for (const t of tournaments) {
+            const tm = t.matches.find(m => m.id === matchId);
+            if (tm) {
+                match = tm;
+                break;
+            }
+        }
+    }
 
     const [raceTo, setRaceTo] = useState<{ [playerId: string]: number }>({});
 
